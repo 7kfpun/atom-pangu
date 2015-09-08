@@ -1,0 +1,14 @@
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Pangu'
+      'submenu': [
+        {
+          'label': 'Pangu spacing'
+          'command': 'pangu:spacing'
+        }
+      ]
+    ]
+  }
+]

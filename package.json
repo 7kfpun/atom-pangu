@@ -1,0 +1,24 @@
+{
+  "name": "pangu",
+  "main": "./lib/pangu",
+  "version": "0.0.0",
+  "description": "Adding space between Chinese and English characters to file in Atom.io editor.",
+  "keywords": [
+    "chinese",
+    "english",
+    "pangu",
+    "spacing"
+  ],
+  "activationCommands": {
+    "atom-text-editor": [
+      "core:save",
+      "pangu:spacing"
+    ]
+  },
+  "repository": "https://github.com/7kfpun/atom-pangu",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=0.174.0 <2.0.0"
+  },
+  "dependencies": {}
+}

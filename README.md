@@ -33,8 +33,6 @@ $ git clone https://github.com/7kfpun/atom-pangu.git ~/.atom/packages/pangu
 
 ## Usage
 
-Display your stock watchlist in status bar.
-
 #### Plugin settings page
 
 To access the Pangu Settings:
@@ -53,7 +51,7 @@ ignoredNames | default: ``
 
 The following commands are available and are keyboard shortcuts.
 
-* `pangu:spacing` - Spacing - `ctrl-alt-p` `ctrl-alt-p`
+* `pangu:spacing` - Spacing - `ctrl-alt-p` `ctrl-alt-g`
 
 
 ## License

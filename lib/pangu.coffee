@@ -9,8 +9,10 @@ module.exports =
       default: false
     ignoredNames:
       title: 'Auto spacing ignored names'
-      type: 'string'
-      default: ''
+      type: 'array'
+      default: []
+      items:
+        type: 'string'
 
   subscriptions: null
 
@@ -68,13 +70,13 @@ module.exports =
     text
 
   spacing: ->
-    console.log "Pangu: spacing"
+    console.log 'Pangu: spacing'
     editor = atom.workspace.getActiveTextEditor()
     sortableRanges = RangeFinder.rangesFor(editor)
     for range in sortableRanges
-      textLines = editor.getTextInBufferRange(range).split("\n")
+      textLines = editor.getTextInBufferRange(range).split('\n')
       insertedTextLines = []
       for textLine in textLines
         textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
         insertedTextLines.push(textLine)
-      editor.setTextInBufferRange(range, insertedTextLines.join("\n"))
+      editor.setTextInBufferRange(range, insertedTextLines.join('\n')) if insertedTextLines != textLines

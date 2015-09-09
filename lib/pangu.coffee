@@ -1,12 +1,16 @@
 {CompositeDisposable} = require 'atom'
+RangeFinder = require './range-finder'
 
 module.exports =
   config:
     enabled:
       title: 'Auto spacing on save'
-      description: 'Automatically add space between Chinese and English characters after saving.'
       type: 'boolean'
       default: false
+    ignoredNames:
+      title: 'Auto spacing ignored names'
+      type: 'string'
+      default: ''
 
   subscriptions: null
 
@@ -18,9 +22,24 @@ module.exports =
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
       @subscriptions.add editor.onDidSave =>
         autoPanguEnabled = atom.config.get('pangu.enabled')
-        # return immediately if automatic compilation is disabled
+        # return immediately if automatic spacing is disabled
         return unless autoPanguEnabled
-        @spacing()
+
+        editor = atom.workspace.getActiveTextEditor()
+        currentFilePath = editor.getPath()
+
+        minimatch = require('minimatch')
+
+        ignoredNames = atom.config.get('pangu.ignoredNames') ? []
+        ignoredNames = [ignoredNames] if typeof ignoredNames is 'string'
+        isIgnored = true
+        for ignoredName in ignoredNames when ignoredName
+          try
+            isIgnored = false if not minimatch(currentFilePath, ignoredName, matchBase: true, dot: true)
+          catch error
+            atom.notifications.addWarning("Error parsing ignore pattern (#{ignoredName})", detail: error.message)
+
+        @spacing() if not isIgnored
 
   deactivate: ->
     @subscriptions.dispose()
@@ -50,7 +69,13 @@ module.exports =
     text
 
   spacing: ->
+    console.log "Pangu: spacing"
     editor = atom.workspace.getActiveTextEditor()
-    text = editor.getText()
-    text = @insert_space text
-    editor.setText @insert_space text
+    sortableRanges = RangeFinder.rangesFor(editor)
+    for range in sortableRanges
+      textLines = editor.getTextInBufferRange(range).split("\n")
+      insertedTextLines = []
+      for textLine in textLines
+        textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
+        insertedTextLines.push(textLine)
+      editor.setTextInBufferRange(range, insertedTextLines.join("\n"))

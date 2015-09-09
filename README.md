@@ -45,6 +45,8 @@ To access the Pangu Settings:
 ```
 # Auto spacing on save
 Enabled | default: `false` (true, false)
+# Auto spacing ignored names
+ignoredNames | default: ``
 ```
 
 #### Commands

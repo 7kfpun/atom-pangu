@@ -45,6 +45,10 @@ To access the Pangu Settings:
 Enabled | default: `false` (true, false)
 # Auto spacing ignored names
 ignoredNames | default: ``
+# Auto spacing ignored names
+ignoredNames | default: ``
+# Ignoring text with the matched pattern, e.g. \\*\\*[^\\*\\*]+\\*\\*, <pre>(.*?)</pre>
+ignoredPattern | default: ``
 ```
 
 #### Commands

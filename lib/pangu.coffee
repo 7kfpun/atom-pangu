@@ -13,6 +13,10 @@ module.exports =
       default: []
       items:
         type: 'string'
+    ignoredPattern:
+      title: 'Ignoring text with the matched pattern, e.g. \\*\\*[^\\*\\*]+\\*\\*, <pre>(.*?)</pre>'
+      type: 'string'
+      default: ''
 
   subscriptions: null
 
@@ -69,6 +73,13 @@ module.exports =
     text = text.replace(/([A-Za-z0-9`~\$%\^&\*\-=\+\\\|/!;:,\.\?\u00a1-\u00ff\u2022\u2026\u2027\u2150-\u218f])([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $2')
     text
 
+  mergeTwoArrays: (firstTexts, secondTexts) ->
+    mergedArray = []
+    for text, index in firstTexts
+      mergedArray.push(text)
+      mergedArray.push(secondTexts[index])
+    mergedArray
+
   spacing: ->
     console.log 'Pangu: spacing'
     editor = atom.workspace.getActiveTextEditor()
@@ -77,6 +88,23 @@ module.exports =
       textLines = editor.getTextInBufferRange(range).split('\n')
       insertedTextLines = []
       for textLine in textLines
-        textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
+        ignoredPattern = atom.config.get('pangu.ignoredPattern')
+        if ignoredPattern
+          re = new RegExp(ignoredPattern, 'g')
+          ignoredTexts = textLine.match(re)
+          if ignoredTexts
+            notIgnoredTexts = textLine.split(re)
+            newArray = []
+            for text in notIgnoredTexts
+              text = @insert_space(text) while text != @insert_space(text)
+              newArray.push(text)
+
+            newArray = @mergeTwoArrays(newArray, ignoredTexts)
+            textLine = newArray.join('')
+          else
+            textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
+        else
+          textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
+
         insertedTextLines.push(textLine)
       editor.setTextInBufferRange(range, insertedTextLines.join('\n')) if insertedTextLines != textLines

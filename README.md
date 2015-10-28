@@ -1,5 +1,9 @@
 # Pangu
 
+[![Dependency Status](https://img.shields.io/david/7kfpun/atom-pangu.svg)](https://github.com/7kfpun/atom-pangu)
+[![devDependency Status](https://img.shields.io/david/dev/7kfpun/atom-pangu.svg)](https://github.com/7kfpun/atom-pangu)
+
+
 Pangu is a plugin for adding space between Chinese and English characters to file in Atom.io editor.
 
 The algorithm is from [paranoid-auto-spacing](https://github.com/vinta/paranoid-auto-spacing)

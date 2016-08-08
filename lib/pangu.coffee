@@ -1,18 +1,24 @@
 {CompositeDisposable} = require 'atom'
+pangu = require 'pangu'
+
 RangeFinder = require './range-finder'
 
 module.exports =
   config:
-    enabled:
+    autoPanguEnabled:
       title: 'Auto spacing on save'
       type: 'boolean'
       default: false
-    ignoredNames:
-      title: 'Auto spacing ignored names'
+    ignoredFilenames:
+      title: 'Auto spacing ignored filenames'
       type: 'array'
       default: []
       items:
         type: 'string'
+    skipNoCJKLine:
+      title: 'Skip on lines without Chinese, Japanese and Korean'
+      type: 'boolean'
+      default: false
     ignoredPattern:
       title: 'Ignoring text with the matched pattern, e.g. \\*\\*[^\\*\\*]+\\*\\*, <pre>(.*?)</pre>'
       type: 'string'
@@ -27,7 +33,7 @@ module.exports =
 
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
       @subscriptions.add editor.onDidSave =>
-        autoPanguEnabled = atom.config.get('pangu.enabled')
+        autoPanguEnabled = atom.config.get('pangu.autoPanguEnabled')
         # return immediately if automatic spacing is disabled
         return unless autoPanguEnabled
 
@@ -36,42 +42,26 @@ module.exports =
 
         minimatch = require('minimatch')
 
-        ignoredNames = atom.config.get('pangu.ignoredNames') ? []
-        ignoredNames = [ignoredNames] if typeof ignoredNames is 'string'
-        isIgnored = true
-        for ignoredName in ignoredNames when ignoredName
+        ignoredFilenames = atom.config.get('pangu.ignoredFilenames') ? []
+        ignoredFilenames = [ignoredFilenames] if typeof ignoredFilenames is 'string'
+        isIgnored = false
+        for ignoreFilename in ignoredFilenames when ignoreFilename
           try
-            isIgnored = false if not minimatch(currentFilePath, ignoredName, matchBase: true, dot: true)
+            isIgnored = true if minimatch(currentFilePath, ignoreFilename, matchBase: true, dot: true)
           catch error
-            atom.notifications.addWarning("Error parsing ignore pattern (#{ignoredName})", detail: error.message)
+            atom.notifications.addWarning("Error parsing ignore pattern (#{ignoreFilename})", detail: error.message)
 
         @spacing() if not isIgnored
 
   deactivate: ->
     @subscriptions.dispose()
 
-  insert_space: (text) ->
-    old_text = text
-    new_text = undefined
-    text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])(["])/g, '$1 $2')
-    text = text.replace(/(["])([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $2')
-    text = text.replace(/(["'\(\[\{<\u201c]+)(\s*)(.+?)(\s*)(["'\)\]\}>\u201d]+)/g, '$1$3$5')
-    text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])()(')([A-Za-z])/g, '$1$3$4')
-    text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])(#(\S+))/g, '$1 $2')
-    text = text.replace(/((\S+)#)([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $3')
-    text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])([\+\-\*\/=&\\|<>])([A-Za-z0-9])/g, '$1 $2 $3')
-    text = text.replace(/([A-Za-z0-9])([\+\-\*\/=&\\|<>])([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $2 $3')
-    old_text = text
-    new_text = old_text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])([\(\[\{<\u201c]+(.*?)[\)\]\}>\u201d]+)([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $2 $4')
-    text = new_text
-    if old_text == new_text
-      text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])([\(\[\{<\u201c>])/g, '$1 $2')
-      text = text.replace(/([\)\]\}>\u201d<])([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $2')
-    text = text.replace(/([\(\[\{<\u201c]+)(\s*)(.+?)(\s*)([\)\]\}>\u201d]+)/g, '$1$3$5')
-    text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])([~!;:,\.\?\u2026])([A-Za-z0-9])/g, '$1$2 $3')
-    text = text.replace(/([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])([A-Za-z0-9`\$%\^&\*\-=\+\\\|/@\u00a1-\u00ff\u2022\u2027\u2150-\u218f])/g, '$1 $2')
-    text = text.replace(/([A-Za-z0-9`~\$%\^&\*\-=\+\\\|/!;:,\.\?\u00a1-\u00ff\u2022\u2026\u2027\u2150-\u218f])([\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff])/g, '$1 $2')
-    text
+  spacingText: (text) ->
+    skipNoCJKLine = atom.config.get('pangu.skipNoCJKLine')
+    if skipNoCJKLine and not /[\u2e80-\u2eff\u2f00-\u2fdf\u3040-\u309f\u30a0-\u30ff\u3100-\u312f\u3200-\u32ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test text
+      return text
+    else
+      return pangu.spacing(text)
 
   mergeTwoArrays: (firstTexts, secondTexts) ->
     mergedArray = []
@@ -84,11 +74,11 @@ module.exports =
     console.log 'Pangu: spacing'
     editor = atom.workspace.getActiveTextEditor()
     sortableRanges = RangeFinder.rangesFor(editor)
+    ignoredPattern = atom.config.get('pangu.ignoredPattern')
     for range in sortableRanges
       textLines = editor.getTextInBufferRange(range).split('\n')
       insertedTextLines = []
       for textLine in textLines
-        ignoredPattern = atom.config.get('pangu.ignoredPattern')
         if ignoredPattern
           re = new RegExp(ignoredPattern, 'g')
           ignoredTexts = textLine.match(re)
@@ -96,15 +86,15 @@ module.exports =
             notIgnoredTexts = textLine.split(re)
             newArray = []
             for text in notIgnoredTexts
-              text = @insert_space(text) while text != @insert_space(text)
+              text = @spacingText(textLine)
               newArray.push(text)
 
             newArray = @mergeTwoArrays(newArray, ignoredTexts)
             textLine = newArray.join('')
           else
-            textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
+            textLine = @spacingText(textLine)
         else
-          textLine = @insert_space(textLine) while textLine != @insert_space(textLine)
+          textLine = @spacingText(textLine)
 
         insertedTextLines.push(textLine)
       editor.setTextInBufferRange(range, insertedTextLines.join('\n')) if insertedTextLines != textLines

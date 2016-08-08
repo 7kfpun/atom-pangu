@@ -21,6 +21,7 @@
     "atom": ">=0.174.0 <2.0.0"
   },
   "dependencies": {
-    "minimatch": "~0.3.0"
+    "minimatch": "^3.0.2",
+    "pangu": "git+https://github.com/vinta/pangu.js.git"
   }
 }

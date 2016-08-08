@@ -1,13 +1,10 @@
+[![Dependency Status](https://david-dm.org/7kfpun/atom-pangu.svg)](https://david-dm.org/7kfpun/atom-pangu)
+
 # Pangu
 
-[![Dependency Status](https://img.shields.io/david/7kfpun/atom-pangu.svg)](https://github.com/7kfpun/atom-pangu)
-[![devDependency Status](https://img.shields.io/david/dev/7kfpun/atom-pangu.svg)](https://github.com/7kfpun/atom-pangu)
+Pangu is a plugin for adding space between Chinese/Japanese/Korean and English characters to file in Atom.io editor.
 
-
-Pangu is a plugin for adding space between Chinese and English characters to file in Atom.io editor.
-
-The algorithm is from [paranoid-auto-spacing](https://github.com/vinta/paranoid-auto-spacing)
-
+The algorithm is from [pangu.js](https://github.com/vinta/pangu.js)
 
 ## Installing
 
@@ -15,13 +12,13 @@ The algorithm is from [paranoid-auto-spacing](https://github.com/vinta/paranoid-
 2. Then select the `Install` tab
 3. Enter `pangu` in the search box
 
-#### Using apm
+#### Install using apm
 
 ```sh
 $ apm install pangu
 ```
 
-#### Install using Git
+#### Or using Git
 
 Alternatively, if you are a git user, you can install the package and keep up to date by cloning the repo directly into your `~/.atom/packages` directory.
 
@@ -29,7 +26,7 @@ Alternatively, if you are a git user, you can install the package and keep up to
 $ git clone https://github.com/7kfpun/atom-pangu.git ~/.atom/packages/pangu
 ```
 
-#### Download Manually
+#### Or download manually
 
 1. Download the files using the [GitHub .zip download](https://github.com/7kfpun/atom-pangu/archive/master.zip) option and unzip them
 2. Move the files inside the folder to `~/.atom/packages/pangu`
@@ -49,8 +46,8 @@ To access the Pangu Settings:
 Enabled | default: `false` (true, false)
 # Auto spacing ignored names
 ignoredNames | default: ``
-# Auto spacing ignored names
-ignoredNames | default: ``
+# Skip on lines without Chinese, Japanese and Korean
+skipNoCKJLine | default: false
 # Ignoring text with the matched pattern, e.g. \\*\\*[^\\*\\*]+\\*\\*, <pre>(.*?)</pre>
 ignoredPattern | default: ``
 ```

@@ -73,6 +73,9 @@ module.exports =
   spacing: ->
     console.log 'Pangu: spacing'
     editor = atom.workspace.getActiveTextEditor()
+    # return immediately if file is empty
+    return unless editor.getText()
+
     sortableRanges = RangeFinder.rangesFor(editor)
     ignoredPattern = atom.config.get('pangu.ignoredPattern')
     for range in sortableRanges

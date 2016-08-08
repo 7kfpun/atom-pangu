@@ -30,11 +30,11 @@ class RangeFinder
   # Internal
   sortableRangeFrom: (selectionRange) ->
     startRow = selectionRange.start.row
-    startCol = 0
+    startCol = selectionRange.start.column
     endRow = if selectionRange.end.column == 0
       selectionRange.end.row - 1
     else
       selectionRange.end.row
-    endCol = @editor.lineTextForBufferRow(endRow).length
+    endCol = selectionRange.end.column
 
     new Range [startRow, startCol], [endRow, endCol]

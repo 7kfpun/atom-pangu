@@ -24,12 +24,15 @@ Alternatively, if you are a git user, you can install the package and keep up to
 
 ```sh
 $ git clone https://github.com/7kfpun/atom-pangu.git ~/.atom/packages/pangu
+$ cd ~/.atom/packages/pangu
+$ npm install
 ```
 
 #### Or download manually
 
 1. Download the files using the [GitHub .zip download](https://github.com/7kfpun/atom-pangu/archive/master.zip) option and unzip them
 2. Move the files inside the folder to `~/.atom/packages/pangu`
+3. Install packages: `npm install`
 
 
 ## Usage
